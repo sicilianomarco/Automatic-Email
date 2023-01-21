@@ -1,0 +1,35 @@
+import smtplib
+import ssl
+from email.message import EmailMessage
+from time import sleep
+from apscheduler.schedulers.background import BlockingScheduler
+from datetime import date, datetime
+
+# Creates a default Background Scheduler
+sched = BlockingScheduler()
+ 
+def prompt():
+    email_sender = 'ADD YOUR EMAIL'
+    email_password = 'ADD YOUR PASSWORD'
+    email_receiver = 'ADD RECEIVER 1 EMAIL', 'ADD RECEIVER 2 EMAIL'
+    subject = 'Check out my new auto email'
+    body = """Life is good!"""
+
+    em = EmailMessage()
+    em['From'] = email_sender
+    em['To'] = email_receiver
+    em['Subject'] = subject
+    em.set_content(body)
+         
+    context = ssl.create_default_context()
+    
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_sender, email_password)
+        smtp.sendmail(email_sender, email_receiver, em.as_string())
+    
+# Set time preferences    
+sched.add_job(prompt, 'cron', day_of_week= 'mon-fri', hour= 18, minute=0)
+ 
+sched.start()
+
+sched.shutdown()
